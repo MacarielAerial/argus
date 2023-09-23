@@ -18,11 +18,19 @@ class TestDataPaths:
 
     # Test input data paths
 
+    @property
+    def path_my_shareable_pipeline(self) -> Path:
+        return self.path_dir_data / "my_shareable_pipeline.json"
+
     # Test output data paths
 
     @property
     def path_dir_output(self) -> Path:
         return self.path_dir_data / "output"
+
+    @property
+    def path_output_kedro_viz_config(self) -> Path:
+        return self.path_dir_output / "kedro_viz_config.json"
 
 
 @fixture

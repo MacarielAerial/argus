@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "gaia"
-version = "0.0.0"
-description = "Template repository for a python project"
+name = "argus"
+version = "0.0.1"
+description = "Configuration file generator for kedro-viz to visualise machine learning project pipelines"
 authors = ["Yifei Yu"]
 readme = "README.md"
 packages = [
-    { include = "gaia", from = "src" }
+    { include = "argus", from = "src" }
 ]
 include = [
-    { path = "src/gaia/conf_default", format = "sdist" },
+    { path = "src/argus/conf_default", format = "sdist" },
     { path = "notebooks", format = "sdist" }
 ]
 
@@ -16,6 +16,7 @@ include = [
 python = "~3.10"
 orjson = "^3.9.7"
 dacite = "^1.8.1"
+kedro-viz = "^6.5.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
