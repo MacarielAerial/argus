@@ -1,0 +1,112 @@
+[tool.poetry]
+name = "gaia"
+version = "0.0.0"
+description = "Template repository for a python project"
+authors = ["Yifei Yu"]
+readme = "README.md"
+packages = [
+    { include = "gaia", from = "src" }
+]
+include = [
+    { path = "src/gaia/conf_default", format = "sdist" },
+    { path = "notebooks", format = "sdist" }
+]
+
+[tool.poetry.dependencies]
+python = "~3.10"
+orjson = "^3.9.7"
+dacite = "^1.8.1"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.12.0"
+pytest = "^7.4.2"
+mypy = "^1.5.1"
+flake8 = "^6.1.0"
+coverage = {extras = ["toml"], version = "^7.3.1"}
+black = "^23.9.1"
+yamllint = "^1.32.0"
+semgrep = "^1.39.0"
+ipykernel = "^6.25.2"
+nbformat = "^5.9.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+force-exclude = '''
+.*/setup\.py$
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["src", "tests"]
+extend_skip = ["setup.py"]
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+addopts = "--junitxml=test_report.xml"
+testpaths = "tests"
+
+[tool.mypy]
+files = "src"
+mypy_path = "src"
+exclude = [
+    ".venv"
+]
+namespace_packages = true
+explicit_package_bases = true
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = []
+ignore_missing_imports = true
+warn_return_any = false
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 50
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    '''if self\.debug''',
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    '''@(abc\.)?abstractmethod''',
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"

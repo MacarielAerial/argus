@@ -1,0 +1,13 @@
+[flake8]
+extend-ignore = 
+    E203
+    # E501 line length rule is ignored to delegate the task to black
+    E501
+exclude = 
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+max-complexity = 11
+max-line-length = 88
