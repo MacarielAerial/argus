@@ -220,7 +220,7 @@ class KedroVizConfigBuilder:
         """
         Add an edge to the pipeline.
         """
-        if {source: target} in self.kedro_viz_config.edges:
+        if {"source": source, "target": target} in self.kedro_viz_config.edges:
             return None
 
         edge = {"source": source, "target": target}
