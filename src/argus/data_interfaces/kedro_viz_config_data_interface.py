@@ -13,7 +13,7 @@ class KedroVizConfig:
     nodes: List[Dict[str, Any]] = field(default_factory=list)
     edges: List[Dict[str, str]] = field(default_factory=list)
     layers: List[str] = field(default_factory=list)
-    tags: List[str] = field(default_factory=list)
+    tags: List[Dict[str, str]] = field(default_factory=list)
     pipelines: List[Dict[str, str]] = field(default_factory=list)
     modular_pipelines: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     selected_pipeline: str = "__default__"

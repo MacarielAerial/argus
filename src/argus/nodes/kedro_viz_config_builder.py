@@ -18,7 +18,6 @@ class NodeType(str, Enum):
 @dataclass
 class DataNodeDict:
     node_name: str
-    tags: List[str] = field(default_factory=list)
     pipelines: List[str] = field(default_factory=list)
     modular_pipelines: List[str] = field(default_factory=list)
     layer: Optional[str] = None
@@ -115,15 +114,7 @@ class KedroVizConfigBuilder:
         self._add_edge(source=task_node_id, target=output_data_node_id)
 
         # Add tags
-        tags: Set[str] = set(
-            [
-                tag
-                for tag in triple_dict.input_data_node_dict.tags
-                + triple_dict.task_node_dict.tags
-                + triple_dict.output_data_node_dict.tags
-            ]
-        )
-        for tag in tags:
+        for tag in triple_dict.task_node_dict.tags:
             self._add_tag(tag=tag)
 
         # Add layers
@@ -145,39 +136,17 @@ class KedroVizConfigBuilder:
             self._add_pipeline(pipeline_id=pipeline, pipeline_name=pipeline)
 
         # Append to modular pipelines
-        if not any(
-            [
-                input_data_node_id == id_type_dict["id"]
-                for id_type_dict in self.kedro_viz_config.modular_pipelines["__root__"][
-                    "children"
-                ]
-            ]
-        ):
-            self.kedro_viz_config.modular_pipelines["__root__"]["children"].append(
-                {"id": input_data_node_id, "type": "data"}
-            )
-        if not any(
-            [
-                task_node_id == id_type_dict["id"]
-                for id_type_dict in self.kedro_viz_config.modular_pipelines["__root__"][
-                    "children"
-                ]
-            ]
-        ):
-            self.kedro_viz_config.modular_pipelines["__root__"]["children"].append(
-                {"id": task_node_id, "type": "task"}
-            )
-        if not any(
-            [
-                output_data_node_id == id_type_dict["id"]
-                for id_type_dict in self.kedro_viz_config.modular_pipelines["__root__"][
-                    "children"
-                ]
-            ]
-        ):
-            self.kedro_viz_config.modular_pipelines["__root__"]["children"].append(
-                {"id": output_data_node_id, "type": "data"}
-            )
+        self._add_child_to_modular_pipeline(
+            modular_pipeline_name="__root__",
+            child={"id": input_data_node_id, "type": "data"},
+        )
+        self._add_child_to_modular_pipeline(
+            modular_pipeline_name="__root__", child={"id": task_node_id, "type": "task"}
+        )
+        self._add_child_to_modular_pipeline(
+            modular_pipeline_name="__root__",
+            child={"id": output_data_node_id, "type": "data"},
+        )
 
         logger.info(
             f"Added a triple: {(triple_dict.input_data_node_dict.node_name, triple_dict.task_node_dict.node_name, triple_dict.output_data_node_dict.node_name)}"
@@ -196,7 +165,6 @@ class KedroVizConfigBuilder:
         node = {
             "id": node_id,
             "name": data_node_dict.node_name,
-            "tags": data_node_dict.tags,
             "pipelines": data_node_dict.pipelines or ["__default__"],
             "type": NodeType.data.value,
             "modular_pipelines": data_node_dict.modular_pipelines,
@@ -266,8 +234,10 @@ class KedroVizConfigBuilder:
         """
         Add a tag to the pipeline.
         """
-        if tag not in self.kedro_viz_config.tags:
-            self.kedro_viz_config.tags.append(tag)
+        if not any(
+            [tag == existing_tag["id"] for existing_tag in self.kedro_viz_config.tags]
+        ):
+            self.kedro_viz_config.tags.append({"id": tag, "name": tag})
 
             logger.debug(f"Added a tag {tag} to the set")
 
@@ -308,15 +278,27 @@ class KedroVizConfigBuilder:
                     "name": modular_pipeline_name,
                     "inputs": [],
                     "outputs": [],
-                    "children": [
-                        {"id": node["id"], "type": node["type"]}
-                        for node in self.kedro_viz_config.nodes
-                    ],
+                    "children": [],
                 }
             }
             if attributes:
                 modular_pipeline[modular_pipeline_name].update(attributes)
             self.kedro_viz_config.modular_pipelines.update(modular_pipeline)
+
+    def _add_child_to_modular_pipeline(
+        self, modular_pipeline_name: str, child: Dict[str, str]
+    ) -> None:
+        if not any(
+            [
+                child["id"] == id_type_dict["id"]
+                for id_type_dict in self.kedro_viz_config.modular_pipelines[
+                    modular_pipeline_name
+                ]["children"]
+            ]
+        ):
+            self.kedro_viz_config.modular_pipelines[modular_pipeline_name][
+                "children"
+            ].append(child)
 
     def set_selected_pipeline(self, selected_pipeline: str) -> None:
         """

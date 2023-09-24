@@ -71,7 +71,6 @@ def test_integrity_checks() -> None:
     data_node_dict = DataNodeDict(
         node_name="Node 1",
         modular_pipelines=["mod_pipeline1"],
-        tags=["tag3"],
         pipelines=["pipeline1"],
         layer="layer1",
     )
